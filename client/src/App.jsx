@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import TeacherList from './pages/TeacherList';
+import Contact from './pages/Contact';
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem('isAdmin') === 'true');
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/"         element={<Home        isAdmin={isAdmin} onAdminLogin={loginAdmin} />} />
         <Route path="/teachers" element={<TeacherList isAdmin={isAdmin} />} />
+        <Route path="/contact"  element={<Contact />} />
       </Routes>
       <Footer />
     </BrowserRouter>

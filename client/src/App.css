@@ -203,6 +203,48 @@ body {
 }
 .delete-review-btn:hover { background: #b30000; color: white; }
 
+/* ── CONTACT PAGE ────────────────────────────────────────────────────────── */
+.contact-page {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3rem 1.5rem;
+  background: #f9f9f9;
+}
+.contact-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.09);
+  padding: 2.5rem 2.5rem;
+  width: 100%;
+  max-width: 560px;
+}
+.contact-card h2 {
+  color: #b30000;
+  margin-bottom: 0.6rem;
+  font-size: 1.6rem;
+}
+.contact-sub {
+  color: #555;
+  margin-bottom: 1.6rem;
+  line-height: 1.6;
+}
+.contact-sub a { color: #b30000; font-weight: 600; }
+.contact-form .form-group input {
+  width: 100%; padding: 0.6rem; border: 1px solid #ccc;
+  border-radius: 6px; font-size: 1rem; box-sizing: border-box;
+}
+.contact-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 1.2rem 1.4rem;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.contact-success i { margin-right: 0.4rem; }
+
 /* ── FOOTER ──────────────────────────────────────────────────────────────── */
 .footer { background: #8b0000; color: white; text-align: center; padding: 1.2rem; font-size: 0.95rem; }
 

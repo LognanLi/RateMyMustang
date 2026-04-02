@@ -13,6 +13,7 @@ export default function Header({ isAdmin, onLogout }) {
       <nav>
         <Link to="/"><i className="fa-solid fa-house" /> Home</Link>
         <Link to="/teachers"><i className="fa-solid fa-chalkboard-user" /> Teacher List</Link>
+        <Link to="/contact"><i className="fa-solid fa-envelope" /> Contact</Link>
         {isAdmin && (
           <button onClick={onLogout} style={{ background: '#8b0000', color: 'white', border: 'none', borderRadius: 10, padding: '0.5rem 1rem', cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <i className="fa-solid fa-shield-halved" /> Admin <span style={{ opacity: 0.7, fontSize: '0.8rem' }}>· Logout</span>
