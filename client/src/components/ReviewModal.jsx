@@ -44,15 +44,36 @@ const COURSES_BY_SUBJECT = {
   ],
 };
 
-// Return course list for a teacher — match by exact key or by partial substring
-function getCoursesForTeacher(teacher) {
-  const subj = (teacher.subject || teacher.department || '').trim();
-  if (COURSES_BY_SUBJECT[subj]) return COURSES_BY_SUBJECT[subj];
-  // Try to find a department key that the subject contains or vice-versa
+// Aliases: map alternate subject names from the sheet to our COURSES_BY_SUBJECT keys
+const SUBJECT_ALIASES = {
+  'health':                      'Health Education',
+  'visual and performing arts':  'VAPA',
+  'world language':              'World Languages',
+};
+
+function normalizeSubject(raw) {
+  const lower = raw.trim().toLowerCase();
+  if (SUBJECT_ALIASES[lower]) return SUBJECT_ALIASES[lower];
+  // Try partial match against known keys
   const key = Object.keys(COURSES_BY_SUBJECT).find(
-    k => subj.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(subj.toLowerCase())
+    k => lower.includes(k.toLowerCase()) || k.toLowerCase().includes(lower)
   );
-  return key ? COURSES_BY_SUBJECT[key] : [];
+  return key || raw.trim();
+}
+
+// Return course list for a teacher.
+// Handles multi-subject teachers like "English & Career Technical Education".
+function getCoursesForTeacher(teacher) {
+  const raw = (teacher.subject || teacher.department || '').trim();
+  // Split on " & " to support multi-department teachers
+  const parts = raw.split(/\s*&\s*/);
+  const courses = [];
+  parts.forEach(part => {
+    const key = normalizeSubject(part);
+    const list = COURSES_BY_SUBJECT[key] || [];
+    list.forEach(c => { if (!courses.includes(c)) courses.push(c); });
+  });
+  return courses;
 }
 
 function Stars({ rating }) {

@@ -16,7 +16,8 @@ const fallbackTeachers = [
 ];
 
 // ── Fetch & parse CSV from a published Google Sheet ───────────────────────────
-// Expected columns (row 1 = headers): name, subject, department, email, status
+// Supports flexible column headers:
+//   "Teacher Name" or "name", "Subject(s)" or "subject", "Email", "Status"
 async function fetchTeachersFromSheet(url) {
   console.log('📥  Fetching teachers from Google Sheet…');
   const res = await fetch(url);
@@ -24,19 +25,30 @@ async function fetchTeachersFromSheet(url) {
   const text = await res.text();
 
   const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
 
-  return lines.slice(1).map(line => {
-    // Handle quoted fields with commas inside
+  // Normalize header names so the sheet can use any reasonable column titles
+  const headerMap = rawHeaders.map(h => {
+    if (h === 'teacher name') return 'name';
+    if (h === 'subject(s)' || h === 'subjects') return 'subject';
+    return h; // email, status pass through as-is
+  });
+
+  const teachers = lines.slice(1).map(line => {
+    // Handle quoted fields that may contain commas
     const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
     const obj = {};
-    headers.forEach((h, i) => {
+    headerMap.forEach((h, i) => {
       obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim();
     });
-    // If the sheet has no department column, derive it from subject
-    if (!obj.department) obj.department = obj.subject || '';
+    // Use subject as department (we don't have a separate department column)
+    obj.department = obj.subject || '';
     return obj;
-  }).filter(t => t.name); // skip blank rows
+  })
+    .filter(t => t.name)                                      // skip blank rows
+    .filter(t => !/resigned/i.test(t.status || ''));          // skip resigned teachers
+
+  return teachers;
 }
 
 // Reviews for the 3 featured teachers (keyed by name)
