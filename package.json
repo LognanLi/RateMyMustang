@@ -1,0 +1,15 @@
+{
+  "name": "ratemymustang",
+  "version": "1.0.0",
+  "description": "RateMyMustang - Abraham Lincoln High School teacher rating app",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "seed": "cd server && node seed.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
