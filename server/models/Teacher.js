@@ -4,7 +4,7 @@ const teacherSchema = new mongoose.Schema(
   {
     name:                 { type: String, required: true },
     subject:              { type: String, required: true },   // e.g. "AP Biology", "Calculus BC"
-    department:           { type: String, required: true },   // e.g. "Science", "Mathematics"
+    department:           { type: String, default: '' },      // e.g. "Science", "Mathematics"
     email:                { type: String, default: '' },
     status:               { type: String, default: 'Instructor' },
     // Computed stats – recalculated after every new review

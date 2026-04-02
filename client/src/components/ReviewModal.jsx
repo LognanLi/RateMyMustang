@@ -1,6 +1,54 @@
 import { useState, useEffect, useCallback } from 'react';
 import { API_BASE } from '../lib/api';
 
+// ── Courses offered per department ────────────────────────────────────────────
+const COURSES_BY_SUBJECT = {
+  'English': [
+    'English 1','English 2','American Literature',
+    'AP Language and Composition','AP Literature and Composition',
+    'CSU Expository Writing','English and European Literature','Writing for Publication',
+  ],
+  'Health Education': ['Health Education'],
+  'JROTC': ['JROTC'],
+  'Mathematics': [
+    'Algebra 1','Geometry','Algebra 2','PreCalculus',
+    'Probability & Statistics','AP Statistics','Algebra 2-PreCalculus',
+    'AP Calculus AB','AP Calculus BC',
+  ],
+  'Science': [
+    'NGSS Biology','AP Biology','NGSS Chemistry','NGSS Physics','AP Physics 1',
+    'Physiology','AP Computer Science Principles','AP Computer Science A',
+    'Marine Biology','AP Environmental Science',
+    'Principles of Biotechnology 1','Principles of Biotechnology 2',
+  ],
+  'Social Studies': [
+    'Modern World History','AP World History','US History','AP US History',
+    'American Democracy','Economics','AP US Government and Politics','AP Human Geography',
+  ],
+  'VAPA': [
+    'AP 2D Art','AP 3D Art and Design','Architecture','Ceramics','Creative Computing',
+    'Dance 1','Dance 2','Drama','Drawing and Painting','Introduction to Piano',
+    'Introduction to Guitar','Photography','Theater Tech','Choir','Band','Orchestra','Yoga',
+  ],
+  'World Languages': [
+    'Chinese 1','Chinese 2','Chinese 3 Honors','AP Chinese',
+    'Japanese 1','Japanese 2','Japanese 3 Honors','AP Japanese',
+    'Spanish 1','Spanish 2','Spanish 3 Honors','Spanish 2 for Native Speakers','AP Spanish',
+  ],
+  'Physical Education': ['Physical Education'],
+};
+
+// Return course list for a teacher — match by exact key or by partial substring
+function getCoursesForTeacher(teacher) {
+  const subj = (teacher.subject || teacher.department || '').trim();
+  if (COURSES_BY_SUBJECT[subj]) return COURSES_BY_SUBJECT[subj];
+  // Try to find a department key that the subject contains or vice-versa
+  const key = Object.keys(COURSES_BY_SUBJECT).find(
+    k => subj.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(subj.toLowerCase())
+  );
+  return key ? COURSES_BY_SUBJECT[key] : [];
+}
+
 function Stars({ rating }) {
   const full  = Math.floor(rating);
   const half  = rating % 1 >= 0.5 ? 1 : 0;
@@ -31,7 +79,7 @@ function StarPicker({ value, onChange }) {
   );
 }
 
-const emptyForm = { rating: 0, difficulty: '', wouldTakeAgain: null, comment: '' };
+const emptyForm = { course: '', rating: 0, difficulty: '', wouldTakeAgain: null, comment: '' };
 
 export default function ReviewModal({ teacher, startOnForm, onClose, onReviewAdded, isAdmin }) {
   const [reviews,    setReviews]    = useState([]);
@@ -53,9 +101,12 @@ export default function ReviewModal({ teacher, startOnForm, onClose, onReviewAdd
 
   useEffect(() => { fetchReviews(); }, [fetchReviews]);
 
+  const courseOptions = getCoursesForTeacher(teacher);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (courseOptions.length > 0 && !form.course) return setError('Please select the class you took.');
     if (!form.rating)              return setError('Please select a star rating.');
     if (!form.difficulty)          return setError('Please select a difficulty level.');
     if (form.wouldTakeAgain === null) return setError('Please answer "Would Take Again".');
@@ -63,7 +114,7 @@ export default function ReviewModal({ teacher, startOnForm, onClose, onReviewAdd
 
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/teachers/${teacher._id}/reviews`, {
+      const res = await fetch(`${API_BASE}/api/teachers/${teacher._id}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -128,6 +179,16 @@ export default function ReviewModal({ teacher, startOnForm, onClose, onReviewAdd
             <h3><i className="fa-solid fa-pen" /> Write a Review</h3>
             {error && <p style={{ color: '#b30000', marginBottom: '0.5rem' }}>{error}</p>}
 
+            {courseOptions.length > 0 && (
+              <div className="form-group">
+                <label>Class You Took</label>
+                <select value={form.course} onChange={e => setForm(f => ({ ...f, course: e.target.value }))}>
+                  <option value="">Select a class…</option>
+                  {courseOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
+
             <div className="form-group">
               <label>Rating</label>
               <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
@@ -178,6 +239,7 @@ export default function ReviewModal({ teacher, startOnForm, onClose, onReviewAdd
             )}
             {!loading && reviews.map((r, i) => (
               <div key={r._id || i} className="single-review">
+                {r.course && <p className="stat-row" style={{ color: '#555', fontStyle: 'italic' }}>📚 {r.course}</p>}
                 <p className="stat-row"><Stars rating={r.rating} /> <strong>({r.rating})</strong></p>
                 <p className="stat-row"><strong>Difficulty:</strong> {r.difficulty}</p>
                 <p className="stat-row"><strong>Would Take Again:</strong> {r.wouldTakeAgain ? '✅ Yes' : '❌ No'}</p>

@@ -85,12 +85,12 @@ router.post('/:id/reviews', async (req, res) => {
     const teacher = await Teacher.findById(req.params.id);
     if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
 
-    const { rating, difficulty, wouldTakeAgain, comment } = req.body;
+    const { rating, difficulty, wouldTakeAgain, comment, course } = req.body;
     if (!rating || !difficulty || wouldTakeAgain === undefined || !comment) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const review = new Review({ teacher: req.params.id, rating, difficulty, wouldTakeAgain, comment });
+    const review = new Review({ teacher: req.params.id, course: course || '', rating, difficulty, wouldTakeAgain, comment });
     await review.save();
     await recalcStats(req.params.id);
 
