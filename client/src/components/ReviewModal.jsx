@@ -36,6 +36,12 @@ const COURSES_BY_SUBJECT = {
     'Spanish 1','Spanish 2','Spanish 3 Honors','Spanish 2 for Native Speakers','AP Spanish',
   ],
   'Physical Education': ['Physical Education'],
+  'Career Technical Education': [
+    'Digital Media Design Academy',
+    'Teacher Academy',
+    'Business Academy',
+    'Green Academy',
+  ],
 };
 
 // Return course list for a teacher — match by exact key or by partial substring
